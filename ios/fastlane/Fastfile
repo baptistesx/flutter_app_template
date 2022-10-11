@@ -1,0 +1,88 @@
+fastlane_require 'dotenv'
+
+platform :ios do
+
+    desc "Build lane"
+    lane :build do
+        sh("fvm flutter build ipa --release")
+    end
+
+    #desc "New iOS build for Counter Demo app"
+    #lane :ios_beta_app do
+    #    build_app(
+    #        scheme: "Runner",
+    #        skip_build_archive: true,
+    #        archive_path: "../build/ios/archive/Runner.xcarchive",
+    #        export_method: "development",
+    #        output_directory: "./build/Runner"
+    #    )
+    #    firebase_app_distribution(
+    #        app: "1:850407421869:ios:c0eb4198d306afad26d324",
+    #        testers: "seuxbaptiste@gmail.com, enguerrand.arminjon@gmail.com",
+    #        release_notes: "Initial test version of the app",
+    #        ipa_path: "./build/Runner/Runner.ipa"
+    #    )
+    #end
+
+
+    desc "IOS App Center distribution"
+    lane :deploy_to_appcenter do
+        build_app(
+            scheme: "Runner",
+            skip_build_archive: true,
+            archive_path: "../build/ios/archive/Runner.xcarchive",
+            export_method: "ad-hoc",
+            output_directory: "./build/Runner"
+        )
+        appcenter_upload(
+            destinations: "devs",
+            api_token: ENV["APP_CENTER_TOKEN"],
+            owner_name: "seuxbaptiste-gmail.com",
+            owner_type: "user", # Default is user - set to organization for appcenter organizations
+            app_name: "TRAMS",
+            file: "./build/Runner/Runner.ipa",
+            notify_testers: true # Set to false if you don't want to notify testers of your new release (default: `false`)
+        )
+    end
+
+    desc "IOS App Center distribution test"
+    lane :deploy_to_appcenter_test do
+        #appcenter_fetch_devices(
+        #    api_token: ENV["APP_CENTER_TOKEN"],
+        #    owner_name: "enguerrand.arminjon-gmail.com",
+        #    app_name: "Meowtel-ios",
+        #    destinations: "devs, testers",, # Default is 'Collaborators', use '*' for all distribution groups
+        #    devices_file: "devices.txt" # Default. If you customize, the extension must be .txt
+        #)
+        # Ensure all devices are registered with Apple
+        #register_devices(devices_file: "devices.txt")
+
+        # Provision test devices, download provisioning profile, and download signing certificate
+        #match(force_for_new_devices: true)
+        build_app(
+            scheme: "Runner",
+            skip_build_archive: true,
+            archive_path: "../build/ios/archive/Runner.xcarchive",
+            export_method: "ad-hoc",
+            output_directory: "./build/Runner"
+        )
+        appcenter_upload(
+            destinations: "devs, testers",
+            api_token: ENV["APP_CENTER_TOKEN"],
+            owner_name: "seuxbaptiste-gmail.com",
+            owner_type: "user", # Default is user - set to organization for appcenter organizations
+            app_name: "TRAMS",
+            file: "./build/Runner/Runner.ipa",
+            notify_testers: true # Set to false if you don't want to notify testers of your new release (default: `false`)
+        )
+    end
+
+    lane :deploy_to_testflight do
+        update_code_signing_settings(
+            use_automatic_signing: false,
+        )
+       # sync_code_signing(type: "appstore")    # see code signing guide for more information
+        build_app(scheme: "Runner")
+        upload_to_testflight
+    end
+end
