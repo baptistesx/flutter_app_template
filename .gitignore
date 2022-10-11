@@ -48,3 +48,7 @@ app.*.map.json
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+cicd/**
+!cicd/.gitkeep
+**/fastlane/.env

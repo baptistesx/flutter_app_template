@@ -8,7 +8,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text("trams app")),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          debugPrint('refresh');
+        },
+        child: ListView(
+          children: const <Widget>[Center(child: Text('trams app'))],
+        ),
+      ),
     );
   }
 }

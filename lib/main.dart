@@ -26,12 +26,15 @@ Future<void> main() async {
 
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
-      // Init global repositories
       final SettingsRepository settingsRepository =
           SettingsRepository(logger: Logger());
 
       final SettingsModel? settings =
           await settingsRepository.loadFromPreferences();
+
+      // SystemChrome.setPreferredOrientations(
+      //   <DeviceOrientation>[DeviceOrientation.portraitUp],
+      // );
 
       runApp(
         MultiBlocProvider(
@@ -51,7 +54,7 @@ Future<void> main() async {
                 create: (BuildContext context) => AppTheme(),
               ),
             ],
-            child: TramsApp(
+            child: MobileApp(
               observer: FirebaseAnalyticsObserver(
                 analytics: FirebaseAnalytics.instance,
               ),
